@@ -12,11 +12,12 @@ world_shp() {
 world() {
   world_shp $1
   mkdir -p world
-  geo2topo -q 1e5 -n countries=<( \
+  geo2topo -q 1e4 -n countries=<( \
       shp2json -n build/ne_$1_admin_0_countries.shp \
         | ndjson-map '(d.id = d.properties.admin, delete d.properties, d)' \
         | ndjson-filter 'd.id !== "Antarctica"' \
         | geostitch -n) \
+    | toposimplify -f -p 0.02 \
     | topomerge land=countries \
     > world/$1.json
 }
